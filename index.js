@@ -4,7 +4,8 @@
 */
 var coffee = require("coffee-script");
 var loaderUtils = require("loader-utils");
-module.exports = function(source) {
+var transfer = require("multi-stage-sourcemap").transfer;
+module.exports = function(source, original_source_map) {
 	this.cacheable && this.cacheable();
 	var coffeeRequest = loaderUtils.getRemainingRequest(this);
 	var jsRequest = loaderUtils.getCurrentRequest(this);
@@ -38,5 +39,8 @@ module.exports = function(source) {
 	}
 	var map = JSON.parse(result.v3SourceMap);
 	map.sourcesContent = [source];
+	if(original_source_map){
+		map = transfer({fromSourceMap: original_source_map, toSourceMap: map});
+	}
 	this.callback(null, result.js, map);
 }
